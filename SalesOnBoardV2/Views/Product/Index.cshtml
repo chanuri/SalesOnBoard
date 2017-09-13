@@ -1,0 +1,105 @@
+﻿@model IEnumerable<BLL.Model.Product>
+
+<p>
+    @*@Html.ActionLink("Create New", "Create")*@
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" >Add NewProduct</button><br /><br />
+</p>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="http://localhost:57784/Scripts/bootstrap.min.js"></script>
+<br /><br />
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Price)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Price)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+        </td>
+    </tr>
+}
+
+</table>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Add Product</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <div class="editor-label">
+                            Name
+                        </div>
+                        <div class="editor-label">
+                            <input type="text" id="txtName" />
+                        </div>
+
+                        <div class="editor-label">
+                            Price
+                        </div>
+                        <div class="editor-label">
+                            <input type="number" id="txtPrice" />
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnAdd" onclick="return Add();">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+    });
+    function Add() {
+        // debugger;
+        //var data = $("#form - horizontal").serialize();
+        $.ajax(
+            {
+                type: "POST", //HTTP POST Method
+                url: "/Product/Create", // Controller/View
+                data: { //Passing data
+                    Name: $("#txtName").val(), //Reading text box values using Jquery
+                    Price: $("#txtPrice").val(),
+                },
+                success: function (result) {
+                    //loadData();
+                    $('#myModal').modal('hide');
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                }
+
+            });
+
+    };
+    function LoadData()
+    {
+
+    };
+
+
+
+</script>

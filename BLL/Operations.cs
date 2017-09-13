@@ -31,7 +31,6 @@ namespace BLL
             return result;
         }
 
-
         /// <summary>
         /// Get product details by ID
         /// </summary>
