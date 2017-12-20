@@ -62,6 +62,20 @@ namespace BLL
             else  return false;
         }
 
+        public bool DeleteProduct(int? ID)
+        {
+           
+            var updateproduct = db.Products.Where(row => row.ID == ID).FirstOrDefault();
+
+            if (updateproduct != null)
+            {
+                db.Products.Remove(updateproduct);                
+                db.Entry(updateproduct).State = System.Data.Entity.EntityState.Deleted;
+                db.SaveChanges();
+                return true;
+            }
+            else return false;
+        }
         /// <summary>
         /// Update existing product
         /// </summary>
@@ -113,7 +127,6 @@ namespace BLL
 
         #endregion Product
 
-
         #region Customer Section
 
         /// <summary>
@@ -125,7 +138,7 @@ namespace BLL
             var result = MapCustomers(db.Customers.ToList());
             return result;
         }
-
+       
         /// <summary>
         /// Get customer details by ID
         /// </summary>
@@ -161,7 +174,7 @@ namespace BLL
         /// <returns></returns>
         public bool UpdateCustomer(Model.Customer customer)
         {
-            var existCustomer= db.Customers.FirstOrDefault(r => r.ID == customer.ID);
+            var existCustomer= db.Customers.FirstOrDefault(r => r.ID == customer.Id);
             if (existCustomer != null)
             {
                 existCustomer.Name = customer.Name;
@@ -174,6 +187,21 @@ namespace BLL
             }
             else return false;
         }
+
+        public bool DeleteCustomer(int? ID)
+        {
+            var existCustomer = db.Customers.FirstOrDefault(r => r.ID == ID);
+            if (existCustomer != null)
+            {
+                
+                db.Customers.Remove(existCustomer);
+                db.Entry(existCustomer).State = System.Data.Entity.EntityState.Deleted;
+                db.SaveChanges();
+                return true;
+            }
+            else return false;
+        }
+
         /// <summary>
         /// This method to map list of customers of DB to Model.Customer on BLL
         /// </summary>
@@ -198,7 +226,7 @@ namespace BLL
         {
             var newCustomer = new Model.Customer()
             {
-                ID = customer.ID,
+                Id = customer.ID,
                 Name = customer.Name,
                 Address = customer.Address
 
@@ -269,7 +297,23 @@ namespace BLL
             else return false;
            
         }
-       
+
+        public bool DeleteStore(int? ID)
+        {
+            var existingStore = db.Stores.FirstOrDefault(r => r.ID == ID);
+            if (existingStore != null)
+            {
+               
+                db.Stores.Remove(existingStore);
+                db.Entry(existingStore).State = System.Data.Entity.EntityState.Deleted;
+                db.SaveChanges();
+
+                return true;
+            }
+            else return false;
+
+        }
+
         /// <summary>
         /// This method to map list of Stores of DB to Model.Store on BLL
         /// </summary>
@@ -330,13 +374,80 @@ namespace BLL
 
 
             //})
+            //from products in db.Products join ProdSold in db.ProductSolds on
+            ////products.ID equals ProdSold.ProductID
+            //select new BLL.Model.TotalSalesDTO()
+            //{
+            //    Amount=(decimal)products.Price,
+            //    Customer= ProdSold.Customer.Name,
 
-            var data = db.ProductSolds.GroupBy(r => r.StoreID).Select(d => new BLL.Model.TotalSalesDTO()
+            //}
+            var data = db.ProductSolds.Select(d => new BLL.Model.TotalSalesDTO()
             {
-                Id=d.FirstOrDefault().SalesID,
-                ProductName=d.FirstOrDefault().Product.Name,
-                StoreName=d.FirstOrDefault().Store.Name,
-                TotalQty=d.Count()
+                Id=d.SalesID,
+                ProductName=d.Product.Name,
+                StoreName=d.Store.Name,
+                Amount=(decimal)d.Product.Price,
+                Customer=d.Customer.Name,
+                DateSold=(DateTime)d.DateSold,
+                ProductSoldData=new Model.SalesDTO() { CustomerId=(int)d.CustomerID,
+                    Id =d.SalesID,
+                    ProductId= (int)d.ProductID,
+                    StoreId= (int)d.StoreID,
+                    Date =(DateTime)d.DateSold                  
+                }    
+            }).ToList();
+            return data;
+        }
+
+        /// <summary>
+        /// Get Total Sales by customer 
+        /// </summary>
+        /// <returns></returns>
+        public BLL.Model.SalesDTO GetSalesByID(int? ID)
+        {
+
+            var data = db.ProductSolds.Where(r => r.SalesID == ID).Select(row => new BLL.Model.SalesDTO()
+            {
+                CustomerId=(int)row.CustomerID,
+                Date=(DateTime)row.DateSold,
+                Id=(int)row.SalesID,
+                ProductId= (int)row.ProductID,
+                StoreId= (int)row.StoreID,                
+
+            }).FirstOrDefault();
+            return data;
+        }
+
+        public List<BLL.Model.SalesSumaryDTO> GetSalesSummary()
+        {
+            //var data= db.ProductSolds.GroupBy(r => r.CustomerID).Select(d=>new BLL.Model.TotalSalesDTO()
+            //{
+            //    customer=new Model.Customer()
+            //    {
+            //        ID = d.First().Customer.ID,
+            //        Address=d.First().Customer.Address,
+            //        Name=d.First().Customer.Name
+
+            //    },
+            //    Id=d.First().SalesID,
+            //    product=new Model.Product()
+            //    {
+            //        Id=d.First().Product.ID,
+            //        Name=d.First().Product.Name,
+            //        Price=(decimal)d.First().Product.Price
+            //    }
+
+
+            //})
+
+            var data = db.ProductSolds.GroupBy(r => r.StoreID).Select(d => new BLL.Model.SalesSumaryDTO()
+            {
+                Id=(int)d.FirstOrDefault().StoreID,
+                StoreName = d.FirstOrDefault().Store.Name,
+                NoOfProducts = d.Count(),
+                TotalSales = (from PRODUCT in d select (decimal)d.FirstOrDefault(r=>r.Product.ID==PRODUCT.ProductID).Product.Price).Sum()
+
             }).ToList();
             return data;
         }
@@ -352,11 +463,30 @@ namespace BLL
                 CustomerID = sale.CustomerId,
                 ProductID = sale.ProductId,
                 StoreID = sale.StoreId,
-                DateSold = DateTime.Now
+                DateSold = sale.Date,
             });
             db.SaveChanges();
             return true;
         }
+
+        public bool UpdateSale(BLL.Model.SalesDTO sale)
+        {
+            var existingSale = db.ProductSolds.FirstOrDefault(r => r.SalesID == sale.Id);
+            if (existingSale != null)
+            {
+                existingSale.ProductID = sale.ProductId;
+                existingSale.CustomerID = sale.CustomerId;
+                existingSale.StoreID = sale.StoreId;
+                existingSale.DateSold = sale.Date;
+                db.ProductSolds.Attach(existingSale);
+                db.Entry(existingSale).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+
+                return true;
+            }
+            else return false;
+        }
         #endregion Sales 
+
     }
 }

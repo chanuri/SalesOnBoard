@@ -29,5 +29,7 @@ namespace Data
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductSold> ProductSolds { get; set; }
         public virtual DbSet<Store> Stores { get; set; }
+
+        
     }
 }

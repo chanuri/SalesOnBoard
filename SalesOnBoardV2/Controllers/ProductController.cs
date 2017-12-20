@@ -7,7 +7,7 @@ using BLL.Model;
 
 namespace SalesOnBoardV2.Controllers
 {
-    public class ProductController :Controller
+    public class ProductController : BaseController
     {
         BLL.Operations Operation = new BLL.Operations();
         // GET: Product
@@ -15,6 +15,17 @@ namespace SalesOnBoardV2.Controllers
         {
             var products=Operation.GetAllProducts();
             return View(products);
+        }
+        // GET: Product JSON
+        public JsonResult GetAllProduct()
+        {
+            var products = Operation.GetAllProducts();
+            return Json(products,JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult GetProductByID(int? id)
+        {
+            var products = Operation.GetProduct(id);
+            return Json(products, JsonRequestBehavior.AllowGet);
         }
 
         // GET: Product/Details/5
@@ -37,10 +48,20 @@ namespace SalesOnBoardV2.Controllers
             try
             {
                 // TODO: Add insert logic here
-                var products = Operation.SaveProduct(product);
-                //return RedirectToAction("Index");
-                //Index();
-                return RedirectToAction("Index");
+                var valid = TryUpdateModel(product);
+                if (valid)
+                {
+                    var products = Operation.SaveProduct(product);
+                    //return RedirectToAction("Index");
+                    //Index();
+                    //return RedirectToAction("Index");
+                }
+                return Json(new
+                {
+                    Valid = valid,
+                    Errors = GetErrorsFromModelState(),
+                    //StudentsPartial = studentPartialViewHtml
+                });
             }
             catch
             {
@@ -55,41 +76,60 @@ namespace SalesOnBoardV2.Controllers
         }
 
         // POST: Product/Edit/5
+        [HttpPost]        
+        public JsonResult Edit(BLL.Model.Product product)
+        {
+            try
+            {
+                var valid = TryUpdateModel(product);
+                if (valid)
+                {
+                    var products = Operation.UpdateProduct(product);
+                }
+                //return RedirectToAction("Index");
+                return Json(new
+                {
+                    Valid = valid,
+                    Errors = GetErrorsFromModelState(),
+                    //StudentsPartial = studentPartialViewHtml
+                });
+            }
+            catch( Exception ex)
+            {
+                return Json(new
+                {
+                    result = "Error occured"
+                    //StudentsPartial = studentPartialViewHtml
+                });
+            }
+        }
+
+        
+        // POST: Product/Delete/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public JsonResult Delete(int? id)
         {
             try
             {
                 // TODO: Add update logic here
+                var products = Operation.DeleteProduct(id);
+                return Json(new
+                {
+                    result = "sucessfuly edited"
 
-                return RedirectToAction("Index");
+                    //StudentsPartial = studentPartialViewHtml
+                });
             }
             catch
             {
-                return View();
+                return Json(new
+                {
+                    result = "error occured"
+
+                    //StudentsPartial = studentPartialViewHtml
+                });
             }
         }
 
-        // GET: Product/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Product/Delete/5
-        [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }

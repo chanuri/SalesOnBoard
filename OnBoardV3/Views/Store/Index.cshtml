@@ -1,0 +1,211 @@
+﻿@model IEnumerable<BLL.Model.Store>
+
+@{
+    ViewBag.Title = "Store";
+}
+
+<h2>Store</h2>
+
+<p>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-bind="click :$root.newStore" data-target="#myModal">Add New  Store</button><br /><br />
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach:  Stores">
+        <tr id="StoresTable">
+            <td><span data-bind="text:  Name"></span></td>
+            <td><span data-bind="text:  Address"></span></td>
+            <td><a href="#" data-bind="click: $root.EditModal.bind($root)">Edit</a> | <a href="#" data-bind="click: $root.Delete.bind($root)">Delete</a></td>
+        </tr>
+    </tbody>
+</table>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" data-bind="with : SelectedStore">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Add Store</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <div class="editor-label">
+                            Name
+                        </div>
+
+                        <div class="editor-label" @*data-bind="css: { error: Name.hasError }*@ ">
+                            <input type="text" id='txtName' data-bind="value: Name" />
+                            <span class="field-validation-valid text-danger" data-bind='visible: Name.Errors, text: Name.message'> </span>
+                        </div>
+                        <div class="editor-label">
+                            Address
+                        </div>
+                        <div class="editor-label">
+                            <input type="text" id="txtAddress" data-bind="value: Address" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click: $parent.Save" id="btnAdd">Add</button>
+                <button type="button" class="btn btn-primary" id="btnUpdate" data-bind="click: $parent.Update" style="display:none;">Update</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function StoreModal(data)
+    {
+        var self = this;
+        self.Id = ko.observable(data.Id);
+        self.Name = ko.observable(data.Name).extend({
+            required: {
+                params: true,
+                message: "Please enter Name"
+            },
+        });
+        self.Address = ko.observable(data.Address);
+        self.Errors = ko.validation.group([self.Name]);
+        self.IsValid = ko.computed(function () {
+        return self.Errors().length == 0;
+        });
+
+    }
+    var newStore =
+        {
+            Id: 0,
+            Name: '',
+            Address: '',
+            Errors:'',
+            IsValid: true,
+        }
+    var StoreViewModel = function () {
+        var self = this;
+        self.SelectedStore = ko.observable();
+        self.Stores = ko.observableArray([]);
+
+        self.newStore = function () {
+            self.SelectedStore(new StoreModal(newStore));
+            $('#btnUpdate').hide();
+            $('#btnAdd').show();
+            $('#myModalLabel').html("Add Store");
+        }
+        LoadData();
+        function LoadData() {
+            $('#myModal').modal('hide');
+
+            $.ajax({
+                type: "GET",
+                url: "/Store/GetAllStore",
+                success: function (result) {
+                    result.forEach(function (element) {
+                        self.Stores.push(new StoreModal(element));
+                    });
+                    self.Stores(result);
+                },
+                error: function error() {
+                    alert(error.status + "<--and--> " + error.statusText);
+                }
+            });
+        }
+        self.Save = function (data) {
+            if (!data.IsValid()) {
+
+                data.Errors.showAllMessages();
+                return;
+            };
+            $.ajax({
+                url: "/Store/Create", // Controller/View
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                data: ko.toJSON(data),
+                success: function (result) {
+                    if (result.Valid) {
+                        LoadData();
+                    }
+
+                }
+            }).fail(
+                function (xhr, textStatus, err) {
+                    alert(err);
+                }
+                )
+
+            //Ends Here
+        };
+
+        self.Update = function (data) {
+            $.ajax({
+                url: "/Store/Edit", // Controller/View
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                data: ko.toJSON(data),
+                success: function (result) {
+                    if (result.Valid) {
+                        LoadData();
+                    }
+
+                }
+            }).fail(
+                function (xhr, textStatus, err) {
+                    alert(err);
+                }
+                )
+
+            //Ends Here
+        };
+
+        self.EditModal = function (data) {
+            //debugger;
+            self.SelectedStore(data);
+            $('#myModal').modal('show');
+            $('#btnUpdate').show();
+            $('#btnAdd').hide();
+            $('#myModalLabel').html("Edit Store");
+
+        };
+        self.Delete = function (data) {
+            //debugger;
+            var ans = confirm("Are you sure you want delete this Item?");
+            if (!ans) {
+                return;
+            }
+            $.ajax({
+                url: "/Store/Delete/"+data.Id, // Controller/View
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+
+                success: function (result) {
+
+                        LoadData();
+                }
+            }).fail(
+                function (xhr, textStatus, err) {
+                    alert(err);
+                }
+                )
+
+            //Ends Here
+        };
+
+    }
+    //var validationOptions =
+    //    { insertMessages: true, decorateElement: true, errorElementClass: 'errorFill' };
+    //ko.validation.init(validationOptions);
+    ko.applyBindings(new StoreViewModel());
+</script>

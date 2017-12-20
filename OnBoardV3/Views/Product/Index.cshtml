@@ -1,0 +1,267 @@
+﻿@model IEnumerable<BLL.Model.Product>
+
+@{
+    ViewBag.Title = "Product";
+}
+
+<h2>Product</h2>
+
+<p>
+    @*@Html.ActionLink("Create New", "Create")*@
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-bind="click :$root.newProduct" data-target="#myModal" >Add New Product</button><br /><br />
+
+</p>
+<table class="table">
+    <tr>
+        <th>            
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Price)
+        </th>
+        <th></th>
+    </tr>
+    <tbody data-bind="foreach:  Products">
+        <tr id="ProductTable" @*data-bind="click: $root.getselectedProduct"*@>
+            <td><span data-bind="text:  Name"></span></td>
+            <td><span data-bind="text:  Price"></span></td>
+            <td><a href="#" data-bind="click: $root.EditModal.bind($root)" >Edit</a> | <a href="#" data-bind="click: $root.Delete.bind($root)">Delete</a></td>
+        </tr>
+    </tbody>
+</table>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" data-bind="with : SelectedProduct">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Add Product</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <div class="editor-label">
+                            Name
+                        </div>                       
+                            <div class="editor-label" data-bind="css: { error: Name.hasError }">
+                                <input type="text" id='txtName' data-bind="value: Name"  />
+                                <span class="field-validation-valid text-danger" data-bind='visible: Name.Errors, text: Name.message'> </span>
+                                @*<span id="Err_Name" class="field-validation-valid text-danger" data-valmsg-for="Name" data-valmsg-replace="true"></span>*@
+                            </div>
+                            <div class="editor-label">
+                                Price
+                            </div>
+                            <div class="editor-label">
+                                <input type="number" id="txtPrice" data-bind="value: Price" />
+                                <span class="field-validation-valid text-danger" data-bind='visible: Price.Errors, text: Price.message'> </span>
+                                @*<span id="Err_Price" class="field-validation-valid text-danger" data-valmsg-for="Price" data-valmsg-replace="true"></span>*@
+                            </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"  data-bind="click: $parent.Save" id="btnAdd" >Add</button>
+                <button type="button" class="btn btn-primary" id="btnUpdate" data-bind="click: $parent.Update" style="display:none;" >Update</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function ProductModel(data) {
+        var self = this;
+        self.Id = ko.observable(data.Id);
+
+        self.Price = ko.observable(data.Price).extend({
+            required: {
+                params: true,
+                message: "Please enter price"
+            }
+        },
+            {
+                validator: function (val) {
+                    return val >=0;
+                },
+                message: 'Price should be greater than zero',
+                params:true
+            }
+        );
+        self.Name = ko.observable(data.Name).extend({
+            required: {
+                params: true,
+                message: "Please enter Name"
+            },
+        });
+       
+        self.Errors = ko.validation.group([self.Price, self.Name]);
+        self.IsValid = ko.computed(function () {
+           return self.Errors().length == 0;
+        });
+
+
+
+    }
+    var newProduct = {
+        Id : 0,
+        Name : '',
+        Price: 0,
+        IsValid: true,
+    }
+    var ProductViewModel = function () {
+        //Make the self as 'this' reference
+        var self = this;      
+        //ko.validation.init({
+        //    registerExtenders: true,
+        //    messagesOnModified: true,
+        //    insertMessages: true,
+        //    parseInputAttributes: true,
+        //    errorClass: 'field-validation-valid text-danger',
+        //    messageTemplate: null
+        //}, true);
+        
+        self.SelectedProduct = ko.observable();        
+        self.Products = ko.observableArray([]);
+        //self.getselectedProduct = function (product) {
+        //    self.Id(product.EmpNo),
+        //    self.Name(product.Name),
+        //    self.Price(product.Price)
+        //};
+        self.newProduct = function () {
+            self.SelectedProduct(new ProductModel(newProduct));             
+            //$('#myModal').modal('show');
+            $('#btnUpdate').hide();
+            $('#btnAdd').show();
+            $('#myModalLabel').html("Add Product");
+        };
+        LoadData(); //Call the Function which gets all records using ajax call
+        function LoadData() {
+            //Ajax Call Get All Employee Records
+            $('#myModal').modal('hide');
+            $.ajax(
+                {
+                    type: "GET",
+                    url: "/Product/GetAllProduct",
+                    //contentType: "application/json;charset=utf-8",
+                    //dataType: "json",
+                    success: function (result) {
+                        result.forEach(function (elememt) {
+                            self.Products.push(new ProductModel(elememt));
+                        });
+                        self.Products(result);
+                    },
+                    error: function (error) {
+                        alert(error.status + "<--and--> " + error.statusText);
+                    }
+
+                }
+            )
+            //Ends Here
+        };
+        self.Save = function (data) {
+           //debugger;
+            if (!data.IsValid()) {
+
+               // alert("invaild");
+                data.Errors.showAllMessages();
+                return;
+            };
+            
+            $.ajax({
+                url: "/Product/Create", // Controller/View
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                data: ko.toJSON(self.SelectedProduct),
+                success: function (result) {
+                    debugger;
+                    if (result.Valid) {                        
+                        //$('#myModal').modal('hide');
+                        LoadData();                       
+                    }
+                    //$.each(result.Errors, function (key, value) {
+                    //    if (value != null) {
+                    //        $("#Err_" + key).html(value[value.length - 1].ErrorMessage);
+
+                    //    }
+                    //});
+                   
+                   // debugger;
+                   
+                }
+            }).fail(
+                function (xhr, textStatus, err) {
+                    alert(err);
+                }
+                )
+                
+            //Ends Here
+        };
+        self.Update = function () {
+            //debugger;
+            $.ajax({
+                url: "/Product/Edit", // Controller/View
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                data: ko.toJSON(self.SelectedProduct),
+                success: function (result) {
+                    //debugger;
+                    //if (result.Valid) {
+                        //$('#myModal').modal('hide');
+                        LoadData();
+
+                    //}
+                    //$.each(result.Errors, function (key, value) {
+                    //    if (value != null) {
+                    //        $("#Err_" + key).html(value[value.length - 1].ErrorMessage);
+
+                    //    }
+                    //});
+
+                    // debugger;
+
+                }
+            }).fail(
+                function (xhr, textStatus, err) {
+                    alert(err);
+                }
+                )
+
+            //Ends Here
+        };
+        self.Delete = function (data) {
+            
+            var ans = confirm("Are you sure you want to delete this Record?");
+        
+            if (ans) {
+                //debugger;
+                $.ajax({                    
+                    url: "/Product/Delete/" + data.Id,
+                    type: "POST",
+                    contentType: "application/json;charset=UTF-8",
+                    dataType: "json",
+                    success: function (result) {
+                        LoadData();
+                    }
+                }).fail(
+                    function (xhr, textStatus, err) {
+                        alert(err);
+                    }
+                    )
+
+                //Ends Here
+
+            }
+        }
+        self.EditModal = function (data) {  
+            //debugger;
+            self.SelectedProduct(data);
+            $('#myModal').modal('show');
+            $('#btnUpdate').show();
+            $('#btnAdd').hide();
+            $('#myModalLabel').html("Edit Product");
+            
+        };
+    }
+   
+    ko.applyBindings(new ProductViewModel());
+</script>

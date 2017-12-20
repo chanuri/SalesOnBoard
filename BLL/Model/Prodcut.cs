@@ -9,8 +9,9 @@ namespace BLL.Model
 {
     public class Product:Input
     {
-       
+        [StringLength(50, ErrorMessage ="Name cannot be greater than 50 characters"), Required(ErrorMessage ="Name Required")]
         public string Name { get; set; }
+        [Required(ErrorMessage = "Price Required")]
         public decimal Price { get; set; }
     }
 }

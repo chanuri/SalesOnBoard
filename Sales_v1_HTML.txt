@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> - My ASP.NET Application</title>
+    <link href="/Content/bootstrap.css" rel="stylesheet"/>
+<link href="/Content/site.css" rel="stylesheet"/>
+
+    <script src="/Scripts/modernizr-2.6.2.js"></script>
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Keys Onboarding</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/Product">Products</a></li>
+                    <li><a href="/Customer">Customers</a></li>                    
+                    <li><a href="/Store">Store</a></li>
+                    <li><a href="/Sales">Sales</a></li>
+                    <li><a href="/SalesSummary">SalesSummary</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        
+
+<form action="/Sales/Create" method="post"><input name="__RequestVerificationToken" type="hidden" value="Trci_dGdtfS6mdvQpx-pkbR_3P5FVYzwm0MSOn_vv7XSC9JrT0oCOxqbx9HYTVD8cWxKd3fYgAN5hHwEx32q0cOmlUvtyrratch6ObuVric1" />    <div class="form-horizontal">
+        <h4>Create New Sale</h4>
+        <hr />
+        
+        <div class="form-group">
+            <label class="control-label col-md-2" for="CustomerId">CustomerId</label>
+            <div class="col-md-10">
+                <select data-val="true" data-val-number="The field CustomerId must be a number." data-val-required="The CustomerId field is required." id="CustomerId" name="CustomerId"><option value="1">John</option>
+<option value="2">Vini</option>
+<option value="4">Vncent</option>
+<option value="6">Geourde JAs</option>
+</select>               
+                <span class="field-validation-valid text-danger" data-valmsg-for="CustomerId" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2" for="StoreId">StoreId</label>
+            <div class="col-md-10">                
+                <select data-val="true" data-val-number="The field StoreId must be a number." data-val-required="The StoreId field is required." id="StoreId" name="StoreId"><option value="2">MainStore</option>
+<option value="3">Store1</option>
+<option value="4">HStore</option>
+</select>
+                <span class="field-validation-valid text-danger" data-valmsg-for="StoreId" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="ProductId">ProductId</label>
+            <div class="col-md-10">               
+                <select data-val="true" data-val-number="The field ProductId must be a number." data-val-required="The ProductId field is required." id="ProductId" name="ProductId"><option value="1">Samsung</option>
+<option value="2">Oppo 2234</option>
+<option value="27">P1tes</option>
+<option value="29">e</option>
+<option value="31">teaEnglishBr</option>
+<option value="34">p1</option>
+<option value="35">Samsung1</option>
+<option value="44">N1YES</option>
+<option value="47">T5SD</option>
+<option value="48">tt1</option>
+<option value="49">Dresds</option>
+<option value="51">Tend1</option>
+<option value="52">dd</option>
+<option value="54">my first</option>
+<option value="55">Test2</option>
+<option value="56">DSES</option>
+</select>
+                <span class="field-validation-valid text-danger" data-valmsg-for="ProductId" data-valmsg-replace="true"></span>               
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="Date">Date</label>
+            <div class="col-md-10">
+                <input class="form-control text-box single-line" data-val="true" data-val-date="The field Date must be a date." data-val-required="The Date field is required." id="Date" name="Date" type="date" value="1/1/0001 12:00:00 AM" />
+                <span class="field-validation-valid text-danger" data-valmsg-for="Date" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+<div>
+    <a href="/Sales">Back to List</a>
+</div>
+
+
+        <hr />
+        <footer>
+            <p>&copy; 2017 - Keys Onboarding Project</p>
+        </footer>
+    </div>
+
+    <script src="/Scripts/jquery-1.10.2.js"></script>
+
+    <script src="/Scripts/bootstrap.js"></script>
+<script src="/Scripts/respond.js"></script>
+
+    
+    <script src="/Scripts/jquery.validate.js"></script>
+<script src="/Scripts/jquery.validate.unobtrusive.js"></script>
+
+
+</body>
+</html>

@@ -19,7 +19,7 @@ namespace SalesOnBoard.Controllers
 
         // GET: Sales/Details/5
         public ActionResult Details(int id)
-        {
+        {            
             return View();
         }
 
@@ -49,19 +49,22 @@ namespace SalesOnBoard.Controllers
         }
 
         // GET: Sales/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int? Id)
         {
-            return View();
+            var sales = operations.GetSalesByID(Id);
+            sales.CustomerList = operations.GetAllCustomers();
+            sales.StoreList = operations.GetAllStores();
+            sales.ProductList = operations.GetAllProducts();
+            return View(sales);
         }
 
         // POST: Sales/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, BLL.Model.SalesDTO Sales)
         {
             try
             {
-                // TODO: Add update logic here
-
+                operations.UpdateSale(Sales);
                 return RedirectToAction("Index");
             }
             catch

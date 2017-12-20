@@ -70,18 +70,19 @@ namespace SalesOnBoard.Controllers
         }
 
         // GET: Store/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int? id)
         {
-            return View();
+            var store = operations.GetStore(id);
+            return View(store);
         }
 
         // POST: Store/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int? id, BLL.Model.Store Store)
         {
             try
             {
-                // TODO: Add delete logic here
+                var store = operations.DeleteStore(id);
 
                 return RedirectToAction("Index");
             }

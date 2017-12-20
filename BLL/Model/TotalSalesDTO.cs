@@ -14,6 +14,10 @@ namespace BLL.Model
         //public virtual Store store { get; set; }
         public string StoreName { get; set; }
         public string ProductName{ get; set; }
-        public virtual int TotalQty { get; set; }
+        public string Customer { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime DateSold { get; set; }
+
+        public SalesDTO ProductSoldData { get; set; }// this is for v3
     }
 }

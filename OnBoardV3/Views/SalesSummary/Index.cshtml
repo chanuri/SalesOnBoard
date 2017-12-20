@@ -1,0 +1,60 @@
+﻿@model BLL.Model.SalesSumaryDTO
+
+@{
+    ViewBag.Title = "Sales Summary";
+}
+
+<h2>Sales Summary</h2>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                StoreName
+            </th>
+            <th>
+                NoOfProducts
+            </th>
+            <th>
+                TotalSales
+            </th>
+        </tr>
+   </thead>
+    <tbody data-bind="foreach:  Summary">
+        <tr >
+            <td><span data-bind="text:  StoreName"></span></td>
+            <td><span data-bind="text:  NoOfProducts"></span></td>
+            <td><span data-bind="text:  TotalSales"></span></td>
+        </tr>
+    </tbody>
+</table>
+<script type="text/javascript">
+    function SummaryModal (data){
+        self = this;
+        self.StoreName = ko.observable(data.StoreName);
+        self.NoOfProducts = ko.observable(data.NoOfProducts);
+        self.TotalSales = ko.observable(data.TotalSales);
+    }
+    var SalesSummary = function () {
+        var self = this;        
+        self.Summary = ko.observableArray([]);
+        LoadData();
+        function LoadData() {
+            $.ajax({
+                type: "GET",
+                url: "/SalesSummary/GetSalesSummaryData",
+                success: function (result) {
+                    result.forEach(function (element) {
+                        self.Summary.push(new SummaryModal(element));
+                    });
+                    //self.Sales(result);
+                },
+                error: function error() {
+                    alert(error.status + "<--and--> " + error.statusText);
+                }
+            });
+        };
+    }
+    ko.applyBindings(new SalesSummary())
+</script>
